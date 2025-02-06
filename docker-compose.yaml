@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  calculator_db:
+    image: "postgres:11"
+    container_name: "calculator_db"
+    environment:
+      - POSTGRES_USER=calc_user
+      - POSTGRES_PASSWORD=pwd123
+      - POSTGRES_DB=calculator_db
+    ports:
+      - "54320:5432"
