@@ -3,14 +3,18 @@ module bench_press_calculator
 go 1.22.2
 
 require (
+	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/render v1.0.3
+	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	golang.org/x/crypto v0.31.0
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/golang-migrate/migrate/v4 v4.18.2 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

@@ -5,6 +5,8 @@ import (
 	"bench_press_calculator/internal/storage/postgresql"
 	"log/slog"
 	"os"
+
+	"github.com/go-chi/chi/v5"
 )
 
 const (
@@ -25,7 +27,9 @@ func main() {
 	}
 	defer store.Close()
 
-	//TODO init router
+	router:=chi.NewRouter()
+
+	
 
 	//TODO run server
 }

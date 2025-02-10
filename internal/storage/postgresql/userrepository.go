@@ -11,7 +11,7 @@ type UserRepository struct {
 	store *Storage
 }
 
-func (r *UserRepository) Create(u *model.User) error {
+func (r *UserRepository) CreateUser(u *model.User) error {
 	const op = "storage.postgresql.userrepository.Create"
 
 	err := r.store.db.QueryRow("INSERT INTO users (email,encrypted_password,weight) VALUES ($1, $2, $3) RETURNING id",
@@ -47,6 +47,10 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	return u, nil
 }
 
-func (u *UserRepository) Calculate(*model.User) (model.Stat, error){
-	
+func (r *UserRepository) Calculate(user *model.User, weight float32, quantity float32) (*model.Stat, error) {
+	const op = "storage.postgresql.userrepository.Calculate"
+	stat := &model.Stat{}
+	stat.MaxPress = (weight*quantity)/30 + weight
+	user.Weight = stat.MaxPress
+	return stat,nil
 }
