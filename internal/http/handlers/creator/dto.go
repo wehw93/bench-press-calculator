@@ -9,5 +9,5 @@ type Request struct{
 
 type Responce struct{
 	MaxWeight float32 `json:"max weight: "`
-	PercentBetter float32 `json:"better than: "`
+	PercentBetter float32 `json:"better then average on: "`
 }

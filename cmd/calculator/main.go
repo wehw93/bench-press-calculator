@@ -2,10 +2,15 @@ package main
 
 import (
 	"bench_press_calculator/internal/config"
+	"bench_press_calculator/internal/http/handlers/creator"
+	"bench_press_calculator/internal/lib/logger/sl"
 	"bench_press_calculator/internal/storage/postgresql"
 	"log/slog"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -27,11 +32,30 @@ func main() {
 	}
 	defer store.Close()
 
-	router:=chi.NewRouter()
+	router := chi.NewRouter()
 
-	
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.Timeout(60 * time.Second))
 
-	//TODO run server
+	router.Route("/create", func(r chi.Router) {
+		r.Use(middleware.AllowContentType("application/json"))
+		r.Use(middleware.SetHeader("Content-Type", "application/json"))
+		r.Post("/", creator.New(log, store.User()))
+	})
+	srv := &http.Server{
+		Addr:        cfg.Addres,
+		Handler:     router,
+		ReadTimeout: cfg.Timeout,
+		IdleTimeout: cfg.Idle_timeout,
+	}
+	log.Info("starting server", slog.String("addr", srv.Addr))
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("failed to start server", sl.Err(err))
+		os.Exit(1)
+
+	}
 }
 
 func SetupLogger(env string) *slog.Logger {
