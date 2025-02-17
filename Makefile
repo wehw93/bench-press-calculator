@@ -4,7 +4,7 @@ build:
 
 .PHONY: runMigrations
 runMigrations:
-	go run ./cmd/migrator --migrations-path=./migrations
+	go run ./cmd/migrator --migrations-path=./migrations/postgres
 
 .PHONY: test
 
