@@ -1,12 +1,56 @@
-version: "3"
 
 services:
-  calculator_db:
-    image: "postgres:11"
-    container_name: "calculator_db"
+  postgres:
+    image: postgres:15
+    container_name: calculator_db
     environment:
-      - POSTGRES_USER=calc_user
-      - POSTGRES_PASSWORD=pwd123
-      - POSTGRES_DB=calculator_db
+      POSTGRES_USER: calc_user
+      POSTGRES_PASSWORD: pwd123
+      POSTGRES_DB: calculator_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "54320:5432"
+    networks:
+      - main
+
+  calculator:
+    container_name: calculator
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - "local.env"  
+    environment:
+      - CONFIG_PATH=/app/config/local.yaml
+      - HTTP_PORT=8080
+      - LOG_LEVEL=debug
+
+      - PG_HOST=calculator_db
+      - PG_PORT=5432
+      - PG_USER=calc_user
+      - PG_PASSWORD=pwd123
+      - PG_DBNAME=calculator_db
+      - PG_SSLMODE=disable
+      - NIMERA_BASE_URL=
+      - NIMERA_MERCHANT_ID=
+      - NIMERA_MERCHANT_PRIVATE_KEY=
+      - NIMERA_PUBLIC_KEY=
+
+      - FINANCE_BASE_URL=
+      - FINANCE_CALLBACK_URL=
+      - FINANCE_SIGNATURE_SECRET=
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - main
+
+volumes:
+  postgres_data:
+
+networks:
+  main:
+    name: main
+    external: true

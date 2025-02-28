@@ -22,7 +22,13 @@ type HTTPServer struct {
 }
 
 func MustLoad() Config {
-	err := godotenv.Load("local.env")
+	_,err:=os.Stat("local.env")
+	if err!=nil{
+		if os.IsNotExist(err){
+			log.Fatal("нет файла")	
+		}
+	}
+	err = godotenv.Load("local.env")
 	if err != nil {
 		log.Fatal("error of Load .env")
 	}

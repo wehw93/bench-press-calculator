@@ -22,10 +22,9 @@ func New(log *slog.Logger, httpCreator HTTPCreator) http.HandlerFunc {
 		const op = "handlers.creator.New"
 		log := log.With(slog.String("op", op))
 
-		// Читаем тело запроса и логируем его
 		body, _ := io.ReadAll(r.Body)
 		log.Info("Raw request body:", slog.String("body", string(body)))
-		r.Body = io.NopCloser(bytes.NewReader(body)) // Восстанавливаем r.Body
+		r.Body = io.NopCloser(bytes.NewReader(body)) 
 
 		var req Request
 		err := render.DecodeJSON(r.Body, &req)
