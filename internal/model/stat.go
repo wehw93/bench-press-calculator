@@ -1,6 +1,6 @@
 package model
 
-type Stat struct{
-	MaxPress float32`json:"max-press"`
-	PersentBetter float32 `json:"persent-better"`
+type Stat struct {
+	MaxPress      float32 `json:"max_press"`
+	PercentBetter float32 `json:"persent_better"`
 }

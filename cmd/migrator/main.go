@@ -21,7 +21,8 @@ func main() {
 	flag.Parse()
 
 	cfg := config.MustLoad()
-	connURL, err := convertConnStringToURL(cfg.СonnString)
+
+	connURL, err := convertConnStringToURL(cfg.DB.GetDSN())
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := m.Up(); err != nil {
-		if errors.Is(err,migrate.ErrNoChange){
+		if errors.Is(err, migrate.ErrNoChange) {
 			fmt.Println("no migrations to apply")
 			return
 		}

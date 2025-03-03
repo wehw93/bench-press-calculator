@@ -1,5 +1,12 @@
 env: "local"
-conn_string: "host=calculator_db port=5432 dbname=calculator_db user=calc_user password=pwd123 sslmode=disable"
+
+db:
+  host: "calculator_db"
+  port: "5443"
+  name: "calculator_db"
+  user: "calc_user"
+  password: "pwd123"
+  sslmode: "disable"
 
 http_server:
   address: "0.0.0.0:8080"  

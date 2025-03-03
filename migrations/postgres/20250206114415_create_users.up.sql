@@ -1,6 +1,10 @@
-CREATE TABLE users(
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS users(
     id bigserial not null primary key,
     email varchar not null unique,
     encrypted_password varchar not null,
     weight integer
 );
+
+COMMIT;

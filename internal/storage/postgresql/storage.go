@@ -13,13 +13,14 @@ type Storage struct {
 	userRepository *UserRepository
 }
 
-func New(connString string) (*Storage, error) {
+func New(dsn string) (*Storage, error) {
 	const op = "storage.postgreql.New"
 
-	db, err := sql.Open("postgres", connString)
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("%s :%w", op, err)
 	}
+
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("%s :%w", op, err)
 	}

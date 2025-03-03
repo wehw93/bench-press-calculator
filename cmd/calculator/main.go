@@ -2,16 +2,12 @@ package main
 
 import (
 	"bench_press_calculator/internal/config"
-	"bench_press_calculator/internal/http/handlers/creator"
 	"bench_press_calculator/internal/lib/logger/sl"
+	"bench_press_calculator/internal/service/calculator"
 	"bench_press_calculator/internal/storage/postgresql"
+	"bench_press_calculator/internal/transport/http"
 	"log/slog"
-	"net/http"
 	"os"
-	"time"
-
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/chi/v5"
 )
 
 const (
@@ -24,37 +20,24 @@ func main() {
 	cfg := config.MustLoad()
 
 	log := SetupLogger(cfg.Env)
-	log.Info("starting press branch calculator")
+	log.Info("starting bench press calculator")
 
-	store, err := postgresql.New(cfg.СonnString)
+	store, err := postgresql.New(cfg.DB.GetDSN())
 	if err != nil {
 		panic(err)
 	}
 	defer store.Close()
 
-	router := chi.NewRouter()
+	svc := calculator.NewService(store)
 
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(60 * time.Second))
+	srv := http.NewServer(cfg, log, svc)
+	srv.InitRoutes()
 
-	router.Route("/create", func(r chi.Router) {
-		r.Use(middleware.AllowContentType("application/json"))
-		r.Use(middleware.SetHeader("Content-Type", "application/json"))
-		r.Post("/", creator.New(log, store.User()))
-	})
-	srv := &http.Server{
-		Addr:        cfg.Addres,
-		Handler:     router,
-		ReadTimeout: cfg.Timeout,
-		IdleTimeout: cfg.Idle_timeout,
-	}
-	log.Info("starting server", slog.String("addr", srv.Addr))
-	if err := srv.ListenAndServe(); err != nil {
+	log.Info("starting server", slog.String("addr", cfg.HTTPServer.Address))
+
+	if err := srv.Start(); err != nil {
 		log.Error("failed to start server", sl.Err(err))
 		os.Exit(1)
-
 	}
 }
 
