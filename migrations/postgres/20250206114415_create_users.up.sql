@@ -1,6 +1,6 @@
 CREATE TABLE users(
     id bigserial not null primary key,
-    email varchar not null unique,
+    email varchar not null,
     encrypted_password varchar not null,
-    weight integer
+    weight float4
 );

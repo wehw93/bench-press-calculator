@@ -1,0 +1,48 @@
+definitions:
+  http.Request:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      quantity:
+        type: number
+      weight:
+        type: number
+    required:
+    - email
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: wehw93@mail.ru
+    name: Egor Titov
+    url: https://github.com/wehw93
+  description: Sample description
+  title: Documenting API (Wehw93)
+  version: "1"
+paths:
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: create new user
+      parameters:
+      - description: Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/http.Request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/http.Request'
+      summary: create new user
+      tags:
+      - Users
+swagger: "2.0"

@@ -1,0 +1,73 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Sample description",
+        "title": "Documenting API (Wehw93)",
+        "contact": {
+            "name": "Egor Titov",
+            "url": "https://github.com/wehw93",
+            "email": "wehw93@mail.ru"
+        },
+        "version": "1"
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/create": {
+            "post": {
+                "description": "create new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "create new user",
+                "parameters": [
+                    {
+                        "description": "Request",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/http.Request"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "http.Request": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

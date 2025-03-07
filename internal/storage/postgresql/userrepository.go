@@ -1,7 +1,6 @@
 package postgresql
 
 import (
-	"bench_press_calculator/internal/lib/calc"
 	"bench_press_calculator/internal/model"
 	"database/sql"
 	"fmt"
@@ -11,7 +10,7 @@ type UserRepository struct {
 	store *Storage
 }
 
-func (r *UserRepository) CreateUser(u *model.User) error {
+func (r *UserRepository) Create(u *model.User) error {
 	const op = "storage.postgresql.userrepository.Create"
 
 	err := r.store.db.QueryRow("INSERT INTO users (email,encrypted_password) VALUES ($1, $2) RETURNING id",
@@ -27,22 +26,32 @@ func (r *UserRepository) CreateUser(u *model.User) error {
 	return nil
 }
 
-func (r *UserRepository) Calculate(user *model.User, weight float32, quantity float32) (*model.Stat, error) {
-	const op = "storage.postgresql.userrepository.Calculate"
+func (r *UserRepository) GetAverage() (float32, error) {
+	const op = "storage.postgresql/userrepository.GetAverage"
+
 	var avg sql.NullFloat64
 	err := r.store.db.QueryRow("SELECT AVG(weight) FROM users").Scan(&avg)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
-	averageWeight := float32(1)
-	if avg.Valid {
-		averageWeight = float32(avg.Float64)
+
+	if !avg.Valid {
+		return 0, nil
 	}
-	stat := calc.CountCalc(weight, quantity, averageWeight)
-	user.Weight = stat.MaxPress
-	_, err = r.store.db.Exec("UPDATE users SET weight = $1 WHERE id = $2", int32(user.Weight), user.ID)
+
+	return float32(avg.Float64), nil
+}
+
+func (r *UserRepository) UpdateWeight(userID int, weight float32) error {
+	const op = "storage.postgresql.userrepository.UpdateWeight"
+
+	tx, err := r.store.db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
-	return stat, nil
+
+	if _, err := tx.Exec(`UPDATE users SET weight = $1 WHERE id = $2`, weight, userID); err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return tx.Commit()
 }

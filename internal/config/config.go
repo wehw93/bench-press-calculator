@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -10,39 +11,38 @@ import (
 )
 
 type Config struct {
-	Env        string `yaml: "env" env:"ENV" env-default:"prod"`
-	СonnString string `yaml:"conn_string" env-requied:"true"`
-	HTTPServer `yaml:"http_server"`
+	Env        string     `yaml:"env" env:"ENV" env-default:"prod"`
+	DB         DB         `yaml:"db"`
+	HTTPServer HTTPServer `yaml:"http_server"`
+}
+
+type DB struct {
+	Host     string `yaml:"host" env:"PG_HOST" env-default:"calculator_db"`
+	Port     string `yaml:"port" env:"PG_PORT" env-default:"5432"`
+	Name     string `yaml:"name" env:"PG_DBNAME" env-default:"calculator_db"`
+	User     string `yaml:"user" env:"PG_USER" env-default:"calc_user"`
+	Password string `yaml:"password" env:"PG_PASSWORD" env-default:"pwd123"`
+	SSLMode  string `yaml:"sslmode" env:"PG_SSLMODE" env-default:"disable"`
 }
 
 type HTTPServer struct {
-	Addres       string        `yaml:"address" env-default:"localhost:8080"`
-	Timeout      time.Duration `yaml:"timeout" env-default:"4s"`
-	Idle_timeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+	Address     string        `yaml:"address" env-default:"0.0.0.0:8080"`
+	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+func (db *DB) GetDSN() string {
+	return fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
+		db.Host, db.Port, db.Name, db.User, db.Password, db.SSLMode)
 }
 
 func MustLoad() Config {
-	_,err:=os.Stat("local.env")
-	if err!=nil{
-		if os.IsNotExist(err){
-			log.Fatal("нет файла")	
-		}
+	if err := godotenv.Load("local.env"); err != nil && !os.IsNotExist(err) {
+		log.Fatalf("error loading .env file: %v", err)
 	}
-	err = godotenv.Load("local.env")
-	if err != nil {
-		log.Fatal("error of Load .env")
-	}
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		log.Fatal("CONFIG PATH IS NOT SET")
-	}
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exits: %s", configPath)
-	}
-
 	var cfg Config
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cannot read config %s", err)
+	if err := cleanenv.ReadConfig(os.Getenv("CONFIG_PATH"), &cfg); err != nil {
+		log.Fatalf("cannot read config: %s", err)
 	}
 	return cfg
 }

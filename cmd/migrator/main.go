@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	cfg := config.MustLoad()
-	connURL, err := convertConnStringToURL(cfg.СonnString)
+	connURL, err := convertConnStringToURL(cfg.DB.GetDSN())
 	if err != nil {
 		panic(err)
 	}

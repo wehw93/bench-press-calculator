@@ -3,6 +3,7 @@ package storage
 import "bench_press_calculator/internal/model"
 
 type UserRepository interface {
-	CreateUser(*model.User) error
-	Calculate(*model.User, float32,float32) (*model.Stat, error)
+	Create(u *model.User) error 
+	GetAverage() (float32,error)
+	UpdateWeight(userID int, weight float32) error
 }

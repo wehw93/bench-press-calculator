@@ -14,18 +14,18 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOAMD64=v3
 
-RUN go build -ldflags="-w -s" -o cmd/calculator/main ./cmd/calculator
-RUN go build -o cmd/migrator ./cmd/migrator
+RUN go build -ldflags="-w -s" -o /app/calculator ./cmd/calculator
+RUN go build -o /app/migrator ./cmd/migrator
 
 # Stage 3: Run migrations and then the application
 FROM debian:bullseye-slim  
 WORKDIR /app
-COPY --from=builder /app/cmd/calculator/main .
-COPY --from=builder /app/cmd/migrator .
+COPY --from=builder /app/calculator .
+COPY --from=builder /app/migrator .
 COPY local.env .
 COPY config/local.yaml ./config/
 COPY migrations ./migrations
 
 RUN apt-get update && apt-get install -y bash
 
-CMD ["sh", "-c", "./migrator --migrations-path=./migrations/postgres && ./main"]
+CMD ["sh", "-c", "./migrator --migrations-path=./migrations/postgres && ./calculator"]
