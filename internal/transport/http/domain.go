@@ -13,11 +13,11 @@ import (
 )
 
 type Server struct {
-	server *http.Server
-	router *chi.Mux
-	logger *slog.Logger
+	Server *http.Server
+	Router *chi.Mux
+	Logger *slog.Logger
 
-	svc service.CalculatorService
+	Svc service.CalculatorService
 }
 
 func NewServer(cfg *config.Config, logger *slog.Logger, svc service.CalculatorService) *Server {
@@ -28,10 +28,10 @@ func NewServer(cfg *config.Config, logger *slog.Logger, svc service.CalculatorSe
 	router.Use(middleware.Recoverer)
 
 	return &Server{
-		svc:    svc,
-		router: router,
-		logger: logger,
-		server: &http.Server{
+		Svc:    svc,
+		Router: router,
+		Logger: logger,
+		Server: &http.Server{
 			Addr:        cfg.HTTPServer.Address,
 			Handler:     router,
 			ReadTimeout: cfg.HTTPServer.Timeout,
@@ -40,16 +40,16 @@ func NewServer(cfg *config.Config, logger *slog.Logger, svc service.CalculatorSe
 	}
 }
 func (s *Server) InitRoutes() {
-	s.router.Route("/create", func(r chi.Router) {
+	s.Router.Route("/create", func(r chi.Router) {
 		r.Use(middleware.AllowContentType("application/json"))
 		r.Use(middleware.SetHeader("Content-Type", "application/json"))
 		r.Post("/", s.Create())
 	})
-	s.router.Get("/swagger/*", httpSwagger.Handler(
+	s.Router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
 }
 func (s *Server) Start() error {
-	return s.server.ListenAndServe()
+	return s.Server.ListenAndServe()
 }
